@@ -1,0 +1,45 @@
+name: 'action-lint-go-internal'
+description: 'Runs go build/test/lint for external Cresta projects'
+inputs:
+  root:
+    description: Root directory to run the linter in
+    required: false
+    default: '.'
+runs:
+  using: "composite"
+  steps:
+    - name: Install Go
+      uses: actions/setup-go@v3
+      with:
+        go-version-file: ${{ inputs.root }}/go.mod
+        cache-dependency-path: ${{ inputs.root }}/go.sum
+        cache: true
+    - name: Verify generated code is up to date
+      shell: bash
+      run: |
+        if (( $(git status --porcelain=v1 2>/dev/null | wc -l) > 0 )); then
+          # Already have changes.  Skip running generate
+          exit 0
+        fi
+        go generate ./...
+        if (( $(git status --porcelain=v1 2>/dev/null | wc -l) > 0 )); then
+          echo "Generated code is out of date. Please run 'go generate ./...' and commit the changes."
+          exit 1
+        fi
+    - name: golangci-lint
+      uses: golangci/golangci-lint-action@v3
+      with:
+        version: latest
+        working-directory: ${{ inputs.root }}
+    - name: Build
+      run: go build -mod=readonly ./...
+      shell: bash
+      working-directory: ${{ inputs.root }}
+    - name: Verify
+      shell: bash
+      run: go mod verify
+      working-directory: ${{ inputs.root }}
+    - name: Test
+      shell: bash
+      run: go test -v -coverprofile=cover.out ./...
+      working-directory: ${{ inputs.root }}
