@@ -26,20 +26,24 @@ runs:
           echo "Generated code is out of date. Please run 'go generate ./...' and commit the changes."
           exit 1
         fi
-    - name: golangci-lint
-      uses: golangci/golangci-lint-action@v3
-      with:
-        version: latest
-        working-directory: ${{ inputs.root }}
-    - name: Build
-      run: go build -mod=readonly ./...
+    - name: Download
       shell: bash
+      run: go mod download
       working-directory: ${{ inputs.root }}
     - name: Verify
       shell: bash
       run: go mod verify
       working-directory: ${{ inputs.root }}
+    - name: Build
+      run: go build -mod=readonly ./...
+      shell: bash
+      working-directory: ${{ inputs.root }}
     - name: Test
       shell: bash
       run: go test -v -coverprofile=cover.out ./...
       working-directory: ${{ inputs.root }}
+    - name: golangci-lint
+      uses: golangci/golangci-lint-action@v3
+      with:
+        version: latest
+        working-directory: ${{ inputs.root }}
