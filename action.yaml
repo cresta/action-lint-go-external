@@ -42,6 +42,10 @@ runs:
       shell: bash
       run: go test -v -coverprofile=cover.out ./...
       working-directory: ${{ inputs.root }}
+    - name: Test with race detection
+      shell: bash
+      run: go test -v -race ./...
+      working-directory: ${{ inputs.root }}
     - name: golangci-lint
       uses: golangci/golangci-lint-action@v3
       with:
