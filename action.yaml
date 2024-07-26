@@ -9,7 +9,7 @@ runs:
   using: "composite"
   steps:
     - name: Install Go
-      uses: actions/setup-go@v3
+      uses: actions/setup-go@v5
       with:
         go-version-file: ${{ inputs.root }}/go.mod
         cache-dependency-path: ${{ inputs.root }}/go.sum
@@ -17,6 +17,7 @@ runs:
     - name: Verify generated code is up to date
       shell: bash
       run: |
+        cd ${{ inputs.root }}
         if (( $(git status --porcelain=v1 2>/dev/null | wc -l) > 0 )); then
           # Already have changes.  Skip running generate
           exit 0
