@@ -1,10 +1,13 @@
-name: 'action-lint-go-internal'
-description: 'Runs go build/test/lint for external Cresta projects'
+name: "action-lint-go-internal"
+description: "Runs go build/test/lint for external Cresta projects"
 inputs:
+  golangci-lint-version:
+    description: "Version of golangci-lint to run"
+    default: "latest"
   root:
     description: Root directory to run the linter in
     required: false
-    default: '.'
+    default: "."
 runs:
   using: "composite"
   steps:
@@ -50,5 +53,5 @@ runs:
     - name: golangci-lint
       uses: golangci/golangci-lint-action@v8
       with:
-        version: latest
+        version: ${{ inputs.golangci-lint-version }}
         working-directory: ${{ inputs.root }}
